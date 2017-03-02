@@ -12,5 +12,8 @@
     "linux"
   ],
   "author": "Jue <me@jue.yt>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "^2.4.0"
+  }
 }

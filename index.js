@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require( 'fs' );
+const Mqtt = require( './mqtt.js' );
 
 
 const config = require( './config.js' );
@@ -13,13 +14,15 @@ for( let f of fs.readdirSync( './plugins' ) ) {
 	let tmp = REjs.exec( f );
 	if( tmp == null ) continue;
 
-	// Collect plugin info
 	let pName = tmp[1];
 	let pConfig = config[pName];
 
+	// Skip if config name is "global" - this config name ist reserved!
+	if( pName == "global" ) continue;
+
 	// Load plugin
 	try {
-		require( `./plugins/${f}` )( pConfig );
+		require( `./plugins/${f}` )( pConfig, new Mqtt( pName ) );
 	} catch( e ) {
 		console.error( `Loading ${f} failed: ${e.stack}` );
 	}
