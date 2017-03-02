@@ -6,6 +6,8 @@ const Mqtt = require( './mqtt.js' );
 
 const config = require( './config.js' );
 
+let pluginShutdown = [];
+
 // Read plugin folder
 const REjs = /^(.*)\.js$/;
 for( let f of fs.readdirSync( './plugins' ) ) {
@@ -22,9 +24,24 @@ for( let f of fs.readdirSync( './plugins' ) ) {
 
 	// Load plugin
 	try {
-		require( `./plugins/${f}` )( pConfig, new Mqtt( pName ) );
+		let ret = require( `./plugins/${f}` )( pConfig, new Mqtt( pName ) );
+		if( typeof ret == 'function' ) pluginShutdown.push( ret );
 	} catch( e ) {
 		console.error( `Loading ${f} failed: ${e.stack}` );
 	}
 
 }
+
+
+// Shutdown all plugins
+function shutdown() {
+
+	// Call all shutdown handler
+	let runningShutdowns = [];
+	for( let s of pluginShutdown ) runningShutdowns.push( s() );
+
+	// Wait for all handlers and then exit
+	Promise.all( runningShutdowns ).then( () => process.exit() );
+
+}
+process.once( 'SIGINT', shutdown ).once( 'SIGTERM', shutdown );
