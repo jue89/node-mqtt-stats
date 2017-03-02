@@ -11,5 +11,9 @@ module.exports = {
 			"cert": fs.readFileSync( './client.crt' ),
 			"ca": fs.readFileSync( './ca.crt' )
 		}
-	}
+	},
+	"ping": [
+		"8.8.8.8",
+		"8.8.4.4"
+	]
 };
