@@ -15,5 +15,8 @@ module.exports = {
 	"ping": [
 		"8.8.8.8",
 		"8.8.4.4"
-	]
+	],
+	"fastd": {
+		"mesh": "/run/fastd.status.sock"
+	}
 };
