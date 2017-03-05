@@ -4,8 +4,12 @@ const fs = require( 'fs' );
 
 module.exports = function( config, mqtt ) {
 
+	if( typeof config !== 'object' ) config = {};
+	if( ! ( config.ignore instanceof Array ) ) config.ignore = [];
+
 	if( fs.existsSync( '/sys/class/net' ) ) {
 		for( let i of fs.readdirSync( '/sys/class/net' ) ) {
+			if( config.ignore.indexOf( i ) !== -1 ) continue;
 			console.log( "Start publishing if stats for " + i );
 			setInterval( () => pubInterface( i ), 2000 );
 		}

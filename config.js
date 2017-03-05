@@ -34,6 +34,9 @@ module.exports = {
 		"8.8.8.8",
 		"8.8.4.4"
 	],
+	"if": {
+		"ignore": [ "lo" ]
+	},
 	"fastd": socket2config( '/run', /^fastd\.(.*)\.sock$/ ),
 	"bpfcount": socket2config( '/run', /^bpfcountd\.(.*)\.sock$/ )
 };
