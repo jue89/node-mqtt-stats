@@ -2,6 +2,7 @@
 
 const net = require( 'net' );
 const fs = require( '../lib/fs' );
+const unixsocket = require( '../lib/unixsocket' );
 const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
@@ -16,14 +17,13 @@ module.exports = function( config, mqtt ) {
 
 	let last = {};
 	function pubBpfcount( name, path ) {
-		// Connect to socket and fetch current counters
-		let stats = '';
-		net.connect( path ).on( 'data', ( d ) => {
-			stats += d.toString();
-		} ).on( 'end', () => {
-			// Once disconnected, process retrieved stats
+		// Get status from unix socket
+		return unixsocket.query( path ).then( ( stats ) => {
 			let ts = Date.now() / 1000;
+			// One metric per line
 			for( let probe of stats.split('\n') ) {
+				// Every line:
+				// METRIC_NAME:BYTES_CNT:PACKETS_CNT
 				let tmp = probe.split(':');
 				if( tmp.length != 3 ) continue;
 

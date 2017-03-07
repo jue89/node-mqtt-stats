@@ -2,6 +2,7 @@
 
 const net = require( 'net' );
 const fs = require( '../lib/fs' );
+const unixsocket = require( '../lib/unixsocket' );
 const interval = require( '../lib/interval.js' );
 
 
@@ -17,10 +18,9 @@ module.exports = function( config, mqtt ) {
 
 
 	function pubFastd( name, path ) {
-		let stats = '';
-		net.connect( path ).on( 'data', ( d ) => {
-			stats += d.toString();
-		} ).on( 'end', () => {
+		// Get status from unix socket
+		return unixsocket.query( path ).then( ( stats ) => {
+			let ts = Date.now() / 1000;
 			try {
 				stats = JSON.parse( stats );
 				let peers_online = 0;
