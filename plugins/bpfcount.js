@@ -2,19 +2,19 @@
 
 const net = require( 'net' );
 const fs = require( 'fs' );
+const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
 	if( typeof config == 'object' ) for( let name in config ) {
 		if( fs.statSync( config[name] ).isSocket() ) {
 			console.log( "Start publishing stats of bpfcountd probe " + name );
-			pubBpfcountd( name, config[name] );
-			setInterval( () => pubBpfcountd( name, config[name] ), 2000 );
+			interval.create( "bpfcount", 2000, pubBpfcount, [ name, config[name] ] );
 		}
 	}
 
 	let last = {};
-	function pubBpfcountd( name, path ) {
+	function pubBpfcount( name, path ) {
 		// Connect to socket and fetch current counters
 		let stats = '';
 		net.connect( path ).on( 'data', ( d ) => {

@@ -1,11 +1,13 @@
+'use strict';
+
 const fs = require( 'fs' );
+const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
 	if( fs.existsSync( '/proc/uptime' ) ) {
 		console.log( "Start publishing uptime" );
-		pubUptime();
-		setInterval( () => pubUptime(), 60000 );
+		interval.create( "uptime", 60000, pubUptime );
 	}
 
 

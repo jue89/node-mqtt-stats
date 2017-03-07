@@ -1,11 +1,13 @@
+'use strict';
+
 const fs = require( 'fs' );
+const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
 	if( fs.existsSync( '/proc/loadavg' ) ) {
 		console.log( "Start publishing load" );
-		pubLoad();
-		setInterval( () => pubLoad(), 10000 );
+		interval.create( "load", 10000, pubLoad );
 	}
 
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require( 'fs' );
+const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
@@ -11,7 +12,7 @@ module.exports = function( config, mqtt ) {
 		for( let i of fs.readdirSync( '/sys/class/net' ) ) {
 			if( config.ignore.indexOf( i ) !== -1 ) continue;
 			console.log( "Start publishing if stats for " + i );
-			setInterval( () => pubInterface( i ), 2000 );
+			interval.create( "if", 2000, pubInterface, [ i ] );
 		}
 	}
 
@@ -40,5 +41,5 @@ module.exports = function( config, mqtt ) {
 			last[key] = [ ts, value ];
 		} );
 	}
-	
+
 }

@@ -2,14 +2,15 @@
 
 const net = require( 'net' );
 const fs = require( 'fs' );
+const interval = require( '../lib/interval.js' );
+
 
 module.exports = function( config, mqtt ) {
 
 	if( typeof config == 'object' ) for( let name in config ) {
 		if( fs.statSync( config[name] ).isSocket() ) {
 			console.log( "Start publishing stats of fastd connection " + name );
-			pubFastd( name, config[name] );
-			setInterval( () => pubFastd( name, config[name] ), 10000 );
+			interval.create( "fastd", 10000, pubFastd, [ name, config[name] ] );
 		}
 	}
 

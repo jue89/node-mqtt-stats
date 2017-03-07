@@ -2,6 +2,7 @@
 
 const fs = require( 'fs' );
 const Mqtt = require( './mqtt.js' );
+const interval = require( './lib/interval.js' );
 
 
 const config = require( './config.js' );
@@ -35,6 +36,9 @@ for( let f of fs.readdirSync( './plugins' ) ) {
 
 // Shutdown all plugins
 function shutdown() {
+
+	// Clear all running intervals
+	interval.clearAll();
 
 	// Call all shutdown handler
 	let runningShutdowns = [];
