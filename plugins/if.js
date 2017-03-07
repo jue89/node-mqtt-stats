@@ -28,18 +28,18 @@ module.exports = function( config, mqtt ) {
 
 	let last = {};
 	function pubStat( i, j ) {
-		const key = `${i}:${j}`;
+		const topic = `${i}/${j}`;
 		const ts = Date.now() / 1000;
 
 		return fs.readFile( `/sys/class/net/${i}/statistics/${j}` ).then( ( value ) => {
 			value = parseInt( value );
 
-			if( last[key] ) {
-				let rate = Math.round( ( value - last[key][1] ) / ( ts - last[key][0] ) );
-				mqtt.publish( `${i}/${j}`, rate );
+			if( last[topic] ) {
+				let rate = Math.round( ( value - last[topic][1] ) / ( ts - last[topic][0] ) );
+				mqtt.publish( topic, rate );
 			}
 
-			last[key] = [ ts, value ];
+			last[topic] = [ ts, value ];
 		} );
 	}
 

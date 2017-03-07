@@ -13,7 +13,7 @@ module.exports = function( config, mqtt ) {
 
 	function pubUptime() {
 		return fs.readFile( '/proc/uptime' ).then( ( uptime ) => {
-			uptime = uptime.toString().split( ' ' )[ 0 ];
+			uptime = parseInt( uptime.toString().split( ' ' )[ 0 ] );
 			mqtt.publish( uptime );
 		} );
 	}
