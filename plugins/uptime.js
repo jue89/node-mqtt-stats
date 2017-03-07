@@ -1,19 +1,18 @@
 'use strict';
 
-const fs = require( 'fs' );
+const fs = require( '../lib/fs.js' );
 const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
-	if( fs.existsSync( '/proc/uptime' ) ) {
+	fs.stat( '/proc/uptime' ).then( () => {
 		console.log( "Start publishing uptime" );
 		interval.create( "uptime", 60000, pubUptime );
-	}
+	} ).catch( () => {} );
 
 
 	function pubUptime() {
-		fs.readFile( '/proc/uptime', ( err, uptime ) => {
-			if( err ) throw err;
+		return fs.readFile( '/proc/uptime' ).then( ( uptime ) => {
 			uptime = uptime.toString().split( ' ' )[ 0 ];
 			mqtt.publish( uptime );
 		} );

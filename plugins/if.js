@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require( 'fs' );
+const fs = require( '../lib/fs' );
 const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
@@ -8,20 +8,22 @@ module.exports = function( config, mqtt ) {
 	if( typeof config !== 'object' ) config = {};
 	if( ! ( config.ignore instanceof Array ) ) config.ignore = [];
 
-	if( fs.existsSync( '/sys/class/net' ) ) {
-		for( let i of fs.readdirSync( '/sys/class/net' ) ) {
+	fs.readdir( '/sys/class/net' ).then( ( interfaces ) => {
+		for( let i of interfaces ) {
 			if( config.ignore.indexOf( i ) !== -1 ) continue;
 			console.log( "Start publishing if stats for " + i );
 			interval.create( "if", 2000, pubInterface, [ i ] );
 		}
-	}
+	} ).catch( () => {} );
 
 
 	function pubInterface( i ) {
-		pubStat( i, 'tx_bytes' );
-		pubStat( i, 'rx_bytes' );
-		pubStat( i, 'tx_packets' );
-		pubStat( i, 'rx_packets' );
+		return Promise.all( [
+			pubStat( i, 'tx_bytes' ),
+			pubStat( i, 'rx_bytes' ),
+			pubStat( i, 'tx_packets' ),
+			pubStat( i, 'rx_packets' )
+		] );
 	}
 
 	let last = {};
@@ -29,8 +31,7 @@ module.exports = function( config, mqtt ) {
 		const key = `${i}:${j}`;
 		const ts = Date.now() / 1000;
 
-		fs.readFile( `/sys/class/net/${i}/statistics/${j}`, ( err, value ) => {
-			if( err ) return;
+		return fs.readFile( `/sys/class/net/${i}/statistics/${j}` ).then( ( value ) => {
 			value = parseInt( value );
 
 			if( last[key] ) {

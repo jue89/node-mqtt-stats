@@ -1,17 +1,18 @@
 'use strict';
 
 const net = require( 'net' );
-const fs = require( 'fs' );
+const fs = require( '../lib/fs' );
 const interval = require( '../lib/interval.js' );
 
 
 module.exports = function( config, mqtt ) {
 
 	if( typeof config == 'object' ) for( let name in config ) {
-		if( fs.statSync( config[name] ).isSocket() ) {
+		fs.stat( config[name] ).then( (s) => {
+			if( ! s.isSocket() ) return;
 			console.log( "Start publishing stats of fastd connection " + name );
 			interval.create( "fastd", 10000, pubFastd, [ name, config[name] ] );
-		}
+		} ).catch( () => {} );
 	}
 
 

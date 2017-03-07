@@ -1,19 +1,18 @@
 'use strict';
 
-const fs = require( 'fs' );
+const fs = require( '../lib/fs.js' );
 const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
-	if( fs.existsSync( '/proc/loadavg' ) ) {
+	fs.stat( '/proc/loadavg' ).then( () => {
 		console.log( "Start publishing load" );
 		interval.create( "load", 10000, pubLoad );
-	}
+	} ).catch( () => {} );
 
 
 	function pubLoad() {
-		fs.readFile( '/proc/loadavg', ( err, load ) => {
-			if( err ) throw err;
+		return fs.readFile( '/proc/loadavg' ).then( ( load ) => {
 			load = load.toString().split( ' ' );
 			mqtt.publish( 'avg1', load[0] );
 			mqtt.publish( 'avg5', load[1] );

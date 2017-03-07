@@ -1,16 +1,17 @@
 'use strict';
 
 const net = require( 'net' );
-const fs = require( 'fs' );
+const fs = require( '../lib/fs' );
 const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
 	if( typeof config == 'object' ) for( let name in config ) {
-		if( fs.statSync( config[name] ).isSocket() ) {
+		fs.stat( config[name] ).then( (s) => {
+			if( ! s.isSocket() ) return;
 			console.log( "Start publishing stats of bpfcountd probe " + name );
 			interval.create( "bpfcount", 2000, pubBpfcount, [ name, config[name] ] );
-		}
+		} ).catch( () => {} );
 	}
 
 	let last = {};
