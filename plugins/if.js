@@ -8,22 +8,25 @@ module.exports = function( config, mqtt ) {
 	if( typeof config !== 'object' ) config = {};
 	if( ! ( config.ignore instanceof Array ) ) config.ignore = [];
 
-	fs.readdir( '/sys/class/net' ).then( ( interfaces ) => {
-		for( let i of interfaces ) {
-			if( config.ignore.indexOf( i ) !== -1 ) continue;
-			console.log( "Start publishing if stats for " + i );
-			interval.create( "if", 2000, pubInterface, [ i ] );
-		}
+	fs.stat( '/sys/class/net' ).then( ( s ) => {
+		if( ! s.isDirectory() ) return;
+		console.log( "Start publishing if stats" );
+		interval.create( "if", 2000, pubInterfaces );
 	} ).catch( () => {} );
 
 
-	function pubInterface( i ) {
-		return Promise.all( [
-			pubStat( i, 'tx_bytes' ),
-			pubStat( i, 'rx_bytes' ),
-			pubStat( i, 'tx_packets' ),
-			pubStat( i, 'rx_packets' )
-		] );
+	function pubInterfaces() {
+		return fs.readdir( '/sys/class/net' ).then( ( interfaces ) => {
+			let jobs = [];
+			for( let i of interfaces ) {
+				if( config.ignore.indexOf( i ) !== -1 ) continue;
+				jobs.push( pubStat( i, 'tx_bytes' ) );
+				jobs.push( pubStat( i, 'rx_bytes' ) );
+				jobs.push( pubStat( i, 'tx_packets' ) );
+				jobs.push( pubStat( i, 'rx_packets' ) );
+			}
+			return Promise.all( jobs );
+		} );
 	}
 
 	let last = {};
