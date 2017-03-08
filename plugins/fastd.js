@@ -8,16 +8,33 @@ const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
-	if( typeof config == 'object' ) for( let name in config ) {
-		fs.stat( config[name] ).then( (s) => {
-			if( ! s.isSocket() ) return;
-			console.log( "Start publishing stats of fastd connection " + name );
-			interval.create( "fastd", 10000, pubFastd, [ name, config[name] ] );
-		} ).catch( () => {} );
+	if( typeof config != 'object' ) config = {};
+
+	if( config.sockets ) {
+		console.log( "Start publishing fastd stats" );
+		interval.create( "fastd", 10000, pubFastd );
 	}
 
+	function pubFastd() {
+		// Get socket list
+		let sockets = {};
+		switch( typeof config.sockets ) {
+			// Callback method
+			case 'function': sockets = config.sockets(); break;
+			// Static socket list
+			case 'object': sockets = config.sockets; break;
+		}
 
-	function pubFastd( name, path ) {
+		// Publish stats for each socket
+		let jobs = [];
+		for( let name in sockets ) {
+			jobs.push( pubFastdSocket( name, sockets[name] ) );
+		}
+
+		return Promise.all( jobs );
+	}
+
+	function pubFastdSocket( name, path ) {
 		// Get status from unix socket
 		return unixsocket.query( path ).then( ( stats ) => {
 			let ts = Date.now() / 1000;

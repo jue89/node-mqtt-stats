@@ -7,16 +7,34 @@ const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
-	if( typeof config == 'object' ) for( let name in config ) {
-		fs.stat( config[name] ).then( (s) => {
-			if( ! s.isSocket() ) return;
-			console.log( "Start publishing stats of bpfcountd probe " + name );
-			interval.create( "bpfcount", 2000, pubBpfcount, [ name, config[name] ] );
-		} ).catch( () => {} );
+	if( typeof config != 'object' ) config = {};
+
+	if( config.sockets ) {
+		console.log( "Start publishing stats of bpfcountd probes" );
+		interval.create( "bpfcount", 2000, pubBpfcount );
+	}
+
+	function pubBpfcount() {
+		// Get socket list
+		let sockets = {};
+		switch( typeof config.sockets ) {
+			// Callback method
+			case 'function': sockets = config.sockets(); break;
+			// Static socket list
+			case 'object': sockets = config.sockets; break;
+		}
+
+		// Publish stats for each socket
+		let jobs = [];
+		for( let name in sockets ) {
+			jobs.push( pubBpfcountSocket( name, sockets[name] ) );
+		}
+
+		return Promise.all( jobs );
 	}
 
 	let last = {};
-	function pubBpfcount( name, path ) {
+	function pubBpfcountSocket( name, path ) {
 		// Get status from unix socket
 		return unixsocket.query( path ).then( ( stats ) => {
 			let ts = Date.now() / 1000;

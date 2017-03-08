@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 function socket2config( dir, re ) {
 
 	// Make sure last character is '/'
-	if( dir.substr( -1 ) != '/' ) dir += '/'; 
+	if( dir.substr( -1 ) != '/' ) dir += '/';
 
 	// Go through all files in dir and math against the regexp.
 	// The returned name is definied by the first group.
@@ -37,6 +37,10 @@ module.exports = {
 	"if": {
 		"ignore": [ "lo" ]
 	},
-	"fastd": socket2config( '/run', /^fastd\.(.*)\.sock$/ ),
-	"bpfcount": socket2config( '/run', /^bpfcountd\.(.*)\.sock$/ )
+	"fastd": {
+		"sockets": () => socket2config( '/run', /^fastd\.(.*)\.sock$/ )
+	},
+	"bpfcount": {
+		"sockets": () => socket2config( '/run', /^bpfcountd\.(.*)\.sock$/ )
+	}
 };
