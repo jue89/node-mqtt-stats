@@ -6,12 +6,13 @@ const interval = require( '../lib/interval.js' );
 module.exports = function( config, mqtt ) {
 
 	if( typeof config !== 'object' ) config = {};
+	if( typeof config.interval != 'number' ) config.interval = 2000;
 	if( ! ( config.ignore instanceof Array ) ) config.ignore = [];
 
 	fs.stat( '/sys/class/net' ).then( ( s ) => {
 		if( ! s.isDirectory() ) return;
 		console.log( "Start publishing if stats" );
-		interval.create( "if", 2000, pubInterfaces );
+		interval.create( "if", config.interval, pubInterfaces );
 	} ).catch( () => {} );
 
 

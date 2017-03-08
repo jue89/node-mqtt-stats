@@ -5,9 +5,12 @@ const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
+	if( typeof config != 'object' ) config = {};
+	if( typeof config.interval != 'number' ) config.interval = 10000;
+
 	fs.stat( '/proc/loadavg' ).then( () => {
 		console.log( "Start publishing load" );
-		interval.create( "load", 10000, pubLoad );
+		interval.create( "load", config.interval, pubLoad );
 	} ).catch( () => {} );
 
 

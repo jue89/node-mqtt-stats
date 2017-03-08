@@ -9,10 +9,11 @@ const interval = require( '../lib/interval.js' );
 module.exports = function( config, mqtt ) {
 
 	if( typeof config != 'object' ) config = {};
+	if( typeof config.interval != 'number' ) config.interval = 10000;
 
 	if( config.sockets ) {
 		console.log( "Start publishing fastd stats" );
-		interval.create( "fastd", 10000, pubFastd );
+		interval.create( "fastd", config.interval, pubFastd );
 	}
 
 	function pubFastd() {

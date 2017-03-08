@@ -11,8 +11,8 @@ module.exports = function( config, mqtt ) {
 	let pingKill = [];
 	function pubPing( host ) {
 
-		let pingProc = spawn( 'ping', [ '-n', '-D', host ] );
-		
+		let pingProc = spawn( 'ping', [ '-n', '-D', '-i', config.interval, host ] );
+
 		// If the process closed, resolve the promise
 		pingClosed.push( new Promise( ( resolve ) => {
 			pingProc.on( 'close', () => {
@@ -37,7 +37,12 @@ module.exports = function( config, mqtt ) {
 	}
 
 
-	if( config instanceof Array ) for( let host of config ) {
+	// Some defaults
+	if( typeof config != 'object' ) config = {};
+	if( typeof config.interval != 'number' ) config.interval = 2000;
+	config.interval /= 1000;
+
+	if( config.hosts instanceof Array ) for( let host of config.hosts ) {
 		if( ! REaddr.test( host ) ) {
 			console.error( `${host} is no IPv4` );
 			continue;
@@ -45,6 +50,7 @@ module.exports = function( config, mqtt ) {
 		console.log( "Start publishing ping to " + host );
 		pubPing( host );
 	}
+
 
 	return function() {
 		for( let kill of pingKill ) kill();

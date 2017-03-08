@@ -8,10 +8,11 @@ const interval = require( '../lib/interval.js' );
 module.exports = function( config, mqtt ) {
 
 	if( typeof config != 'object' ) config = {};
+	if( typeof config.interval != 'number' ) config.interval = 2000;
 
 	if( config.sockets ) {
 		console.log( "Start publishing stats of bpfcountd probes" );
-		interval.create( "bpfcount", 2000, pubBpfcount );
+		interval.create( "bpfcount", config.interval, pubBpfcount );
 	}
 
 	function pubBpfcount() {

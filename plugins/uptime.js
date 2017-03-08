@@ -5,9 +5,12 @@ const interval = require( '../lib/interval.js' );
 
 module.exports = function( config, mqtt ) {
 
+	if( typeof config != 'object' ) config = {};
+	if( typeof config.interval != 'number' ) config.interval = 60000;
+
 	fs.stat( '/proc/uptime' ).then( () => {
 		console.log( "Start publishing uptime" );
-		interval.create( "uptime", 60000, pubUptime );
+		interval.create( "uptime", config.interval, pubUptime );
 	} ).catch( () => {} );
 
 

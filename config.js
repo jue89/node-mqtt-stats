@@ -30,17 +30,29 @@ module.exports = {
 			"ca": fs.readFileSync( './ca.crt' )
 		}
 	},
-	"ping": [
-		"8.8.8.8",
-		"8.8.4.4"
-	],
+	"uptime": {
+		"interval": 60000
+	},
+	"load": {
+		"interval": 10000
+	},
+	"ping": {
+		"interval": 2000,
+		"hosts": [
+			"8.8.8.8",
+			"8.8.4.4"
+		]
+	},
 	"if": {
+		"interval": 2000,
 		"ignore": [ "lo" ]
 	},
 	"fastd": {
+		"interval": 10000,
 		"sockets": () => socket2config( '/run', /^fastd\.(.*)\.sock$/ )
 	},
 	"bpfcount": {
+		"interval": 2000,
 		"sockets": () => socket2config( '/run', /^bpfcountd\.(.*)\.sock$/ )
 	}
 };
