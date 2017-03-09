@@ -39,6 +39,9 @@ module.exports = {
 	"cpu": {
 		"interval": 10000,
 	},
+	"mem": {
+		"interval": 10000,
+	},
 	"ping": {
 		"interval": 2000,
 		"hosts": [
