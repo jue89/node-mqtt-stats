@@ -48,8 +48,9 @@ module.exports = {
 		"ignore": [ "lo" ]
 	},
 	"fastd": {
-		"interval": 10000,
-		"sockets": () => socket2config( '/run', /^fastd\.(.*)\.sock$/ )
+		"interval": 2000,
+		"sockets": () => socket2config( '/run', /^fastd\.(.*)\.sock$/ ),
+		"observe": [ /./ ]
 	},
 	"bpfcount": {
 		"interval": 2000,
