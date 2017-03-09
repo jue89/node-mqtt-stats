@@ -36,6 +36,9 @@ module.exports = {
 	"load": {
 		"interval": 10000
 	},
+	"cpu": {
+		"interval": 10000,
+	},
 	"ping": {
 		"interval": 2000,
 		"hosts": [
