@@ -45,6 +45,9 @@ module.exports = {
 	"processes": {
 		"interval": 10000,
 	},
+	"conntrack": {
+		"interval": 10000,
+	},
 	"ping": {
 		"interval": 2000,
 		"hosts": [
